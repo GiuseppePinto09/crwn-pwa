@@ -1,43 +1,45 @@
-import React, { useState } from 'react';
-import { connect } from 'react-redux';
+import React from 'react';
+import * as S from './sign-in.styles';
 
-import FormInput from '../form-input/form-input.component';
-import CustomButton from '../custom-button/custom-button.component';
+//redux
+import { connect } from 'react-redux';
 
 import {
   googleSignInStart,
-  emailSignInStart
+  emailSignInStart,
 } from '../../redux/user/user.actions';
 
-import {
-  SignInContainer,
-  SignInTitle,
-  ButtonsBarContainer
-} from './sign-in.styles';
+//components
+import FormInput from '../form-input/form-input.component';
+import CustomButton from '../custom-button/custom-button.component';
 
 const SignIn = ({ emailSignInStart, googleSignInStart }) => {
-  const [userCredentials, setCredentials] = useState({
+  const [userCredentials, setUserCredentials] = React.useState({
     email: '',
-    password: ''
+    password: '',
   });
 
-  const { email, password } = userCredentials;
+  const { email, password } = userCredentials; //destructuring here, so the other methods, and the "return" has them ..
 
   const handleSubmit = async event => {
     event.preventDefault();
-
-    emailSignInStart(email, password);
+    //((((ALWAYS "DESTRUCTURE"!!!))))
+    //(bc its GOOD PRACTICE!)
+    //(3.1) when clicking the button that submits the form, this "handleSubmit" method gets triggered
+    emailSignInStart(email, password); //and this action too!
   };
 
   const handleChange = event => {
     const { value, name } = event.target;
 
-    setCredentials({ ...userCredentials, [name]: value });
+    //instead of the "setState({[name]: value})"
+    //here, we are spreading all the "userCredentials" obj, and THEN .. changing one of their values ..
+    setUserCredentials({ ...userCredentials, [name]: value });
   };
 
   return (
-    <SignInContainer>
-      <SignInTitle>I already have an account</SignInTitle>
+    <S.SignIn>
+      <S.Title>I already have an account</S.Title>
       <span>Sign in with your email and password</span>
 
       <form onSubmit={handleSubmit}>
@@ -57,28 +59,26 @@ const SignIn = ({ emailSignInStart, googleSignInStart }) => {
           label='password'
           required
         />
-        <ButtonsBarContainer>
+        <S.ButtonsContainer>
           <CustomButton type='submit'> Sign in </CustomButton>
           <CustomButton
-            type='button'
+            type='button' //by putting the type on "button" WE ARE NO LONGER "SUBMITTING" THE FORM (which would be the normal behaviour of any "button" INSIDE A "form")
+            //(2.1) when clicking the google sign in button
             onClick={googleSignInStart}
             isGoogleSignIn
           >
             Sign in with Google
           </CustomButton>
-        </ButtonsBarContainer>
+        </S.ButtonsContainer>
       </form>
-    </SignInContainer>
+    </S.SignIn>
   );
 };
 
 const mapDispatchToProps = dispatch => ({
   googleSignInStart: () => dispatch(googleSignInStart()),
   emailSignInStart: (email, password) =>
-    dispatch(emailSignInStart({ email, password }))
+    dispatch(emailSignInStart({ email, password })), //((((((IMP)))))) //(3.1) we pass the "email" & "password" as an OBJECT! (since in the "payload" you CANNOT pass diff variables, but JUST ONE!)
 });
 
-export default connect(
-  null,
-  mapDispatchToProps
-)(SignIn);
+export default connect(null, mapDispatchToProps)(SignIn);

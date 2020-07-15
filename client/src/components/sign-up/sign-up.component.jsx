@@ -1,19 +1,21 @@
-import React, { useState } from 'react';
-import { connect } from 'react-redux';
+import React from 'react';
+import * as S from './sign-up.styles';
 
-import FormInput from '../form-input/form-input.component';
-import CustomButton from '../custom-button/custom-button.component';
+//redux
+import { connect } from 'react-redux';
 
 import { signUpStart } from '../../redux/user/user.actions';
 
-import { SignUpContainer, SignUpTitle } from './sign-up.styles';
+//components
+import FormInput from '../form-input/form-input.component';
+import CustomButton from '../custom-button/custom-button.component';
 
 const SignUp = ({ signUpStart }) => {
-  const [userCredentials, setUserCredentials] = useState({
+  const [userCredentials, setUserCredentials] = React.useState({
     displayName: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
   });
 
   const { displayName, email, password, confirmPassword } = userCredentials;
@@ -26,7 +28,25 @@ const SignUp = ({ signUpStart }) => {
       return;
     }
 
+    //(7.1) to look at the steps of a SAGA refactoring (made by me)
     signUpStart({ displayName, email, password });
+
+    //this is what we had before refactoring it to our SAGA
+    // try {
+    //   const { user } = await auth.createUserWithEmailAndPassword(
+    //     email,
+    //     password
+    //   );
+    //   await createUserProfileDocument(user, { displayName });
+    //   this.setState({
+    //     displayName: '',
+    //     email: '',
+    //     password: '',
+    //     confirmPassword: '',
+    //   });
+    // } catch (error) {
+    //   console.error(error);
+    // }
   };
 
   const handleChange = event => {
@@ -36,8 +56,8 @@ const SignUp = ({ signUpStart }) => {
   };
 
   return (
-    <SignUpContainer>
-      <SignUpTitle>I do not have a account</SignUpTitle>
+    <S.SignUp>
+      <S.Title>I do not have a account</S.Title>
       <span>Sign up with your email and password</span>
       <form className='sign-up-form' onSubmit={handleSubmit}>
         <FormInput
@@ -74,15 +94,13 @@ const SignUp = ({ signUpStart }) => {
         />
         <CustomButton type='submit'>SIGN UP</CustomButton>
       </form>
-    </SignUpContainer>
+    </S.SignUp>
   );
 };
 
 const mapDispatchToProps = dispatch => ({
-  signUpStart: userCredentials => dispatch(signUpStart(userCredentials))
+  signUpStart: userCredentials => dispatch(signUpStart(userCredentials)),
+  //we pass "userCredentials", which is an OBJECT .. and then (in the "action"s (in that file)) we DESTRUCTURE THE VALUES THERE
 });
 
-export default connect(
-  null,
-  mapDispatchToProps
-)(SignUp);
+export default connect(null, mapDispatchToProps)(SignUp);

@@ -2,17 +2,17 @@ import firebase from 'firebase/app';
 import 'firebase/firestore';
 import 'firebase/auth';
 
-const config = {
-  apiKey: 'AIzaSyCdHT-AYHXjF7wOrfAchX4PIm3cSj5tn14',
-  authDomain: 'crwn-db.firebaseapp.com',
-  databaseURL: 'https://crwn-db.firebaseio.com',
-  projectId: 'crwn-db',
-  storageBucket: 'crwn-db.appspot.com',
-  messagingSenderId: '850995411664',
-  appId: '1:850995411664:web:7ddc01d597846f65'
+const firebaseConfig = {
+  apiKey: 'AIzaSyBI651_JtXuOtFhNw73Phi9K--XW-jVNmU',
+  authDomain: 'crwn-db-e7833.firebaseapp.com',
+  databaseURL: 'https://crwn-db-e7833.firebaseio.com',
+  projectId: 'crwn-db-e7833',
+  storageBucket: 'crwn-db-e7833.appspot.com',
+  messagingSenderId: '884602608749',
+  appId: '1:884602608749:web:6c09b87215c36d324ef364',
+  measurementId: 'G-G4969V1ECB',
 };
-
-firebase.initializeApp(config);
+firebase.initializeApp(firebaseConfig);
 
 export const createUserProfileDocument = async (userAuth, additionalData) => {
   if (!userAuth) return;
@@ -29,7 +29,7 @@ export const createUserProfileDocument = async (userAuth, additionalData) => {
         displayName,
         email,
         createdAt,
-        ...additionalData
+        ...additionalData,
       });
     } catch (error) {
       console.log('error creating user', error.message);
@@ -54,30 +54,39 @@ export const addCollectionAndDocuments = async (
   return await batch.commit();
 };
 
-export const convertCollectionsSnapshotToMap = collections => {
-  const transformedCollection = collections.docs.map(doc => {
-    const { title, items } = doc.data();
-
+export const convertCollectionsSnapshotToMap = collectionsSnapShot => {
+  const transformedCollections = collectionsSnapShot.docs.map(docSnapshot => {
+    const { title, items } = docSnapshot.data();
     return {
       routeName: encodeURI(title.toLowerCase()),
-      id: doc.id,
+      id: docSnapshot.id,
       title,
-      items
+      items,
     };
   });
 
-  return transformedCollection.reduce((accumulator, collection) => {
+  return transformedCollections.reduce((accumulator, collection) => {
     accumulator[collection.title.toLowerCase()] = collection;
     return accumulator;
   }, {});
 };
 
+//the "PROMISE" real-world scenario way of using the "onAuthStateChanged()" "OBSERVABLE" way of firebase
+//to check if an user is still logged or not ..
+//(so we do this, bc we wont be using firebase on a real-world project)
 export const getCurrentUser = () => {
+  //thats why we use "Promise" ..
   return new Promise((resolve, reject) => {
-    const unsubscribe = auth.onAuthStateChanged(userAuth => {
-      unsubscribe();
-      resolve(userAuth);
-    }, reject);
+    //"onAuthStateChanged" takes 2 methods .. "success" and "error"
+    const unsubscribe = auth.onAuthStateChanged(
+      //"success"
+      userAuth => {
+        unsubscribe();
+        resolve(userAuth); //(we use the "resolve" Promise param)
+      },
+      //"error"
+      reject //(we use the "reject" Promise param)
+    );
   });
 };
 
