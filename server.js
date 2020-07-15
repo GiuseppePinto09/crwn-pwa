@@ -39,16 +39,6 @@ app.use(compression());
 app.use(bodyParser.json()); //here we are saying: "any of the request that are coming in, transform the BODY! (thats y its called "bodyParser") in JSON!"
 app.use(bodyParser.urlencoded({ extended: true })); //"urlencoded" is a way to make sure that ALL THE URLS that are COMING IN or WE ARE PASSING are WELL FORMATED as an URL STRING! (so they dont get strange letters, symbols, whitespaces, etc .. (or if they have such things, they get properly escaped!))
 
-//(14.5) using the "enforce" library 
-//(thats it, then push onto Heroku and look at it, its acc PRETTY COOL!)
-app.use(
-  enforce.HTTPS({
-    trustProtoHeader: true, //we used this "trustProtoHeader", since HEROKU and other hosters often use "REVERSE PROXIES", which is a way to forward UNENCRYPTED HTTP TRAFFIC to the website
-    //which make it difficult to detect it the original request WAS IN HTTPS or not ..
-    //thats why we need this "trustProtoHeader"
-  })
-);
-
 //(using the "cors" library)
 /*
   EXPLAINING "CORS":
@@ -67,6 +57,16 @@ app.use(cors()); //so using "cors()" ENABLES that feature so the port "3000" can
 
 //if we are in PRODUCTION now ..
 if (process.env.NODE_ENV === 'production') {
+  //(14.5) using the "enforce" library
+  //(thats it, then push onto Heroku and look at it, its acc PRETTY COOL!)
+  app.use(
+    enforce.HTTPS({
+      trustProtoHeader: true, //we used this "trustProtoHeader", since HEROKU and other hosters often use "REVERSE PROXIES", which is a way to forward UNENCRYPTED HTTP TRAFFIC to the website
+      //which make it difficult to detect it the original request WAS IN HTTPS or not ..
+      //thats why we need this "trustProtoHeader"
+    })
+  );
+
   app.use(
     //"static" is a middleware function of the "express" library
     express.static(
